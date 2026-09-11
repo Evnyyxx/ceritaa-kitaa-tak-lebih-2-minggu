@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>DUA MINGGU</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0f1c;
+  --panel:#121a2b;
+  --bubble-in:#1c2740;
+  --bubble-out:#c0227a;
+  --bubble-out2:#8b1560;
+  --text:#e7ecf5;
+  --text-dim:#8b96ad;
+  --line:#232f47;
+  --naya:#ec4899;
+  --arga:#38bdf8;
+  --salsa:#a855f7;
+  --rani:#f59e0b;
+  --orang:#10b981;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Plus Jakarta Sans',sans-serif;
+  overflow:hidden;
+  height:100vh;
+  height:100dvh;
+}
+
+/* ambient glow */
+body::before{
+  content:"";
+  position:fixed;inset:0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(236,72,153,.10), transparent 45%),
+    radial-gradient(circle at 85% 100%, rgba(56,189,248,.09), transparent 45%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.stage{
+  position:relative;
+  max-width:480px;
+  height:100%;
+  margin:0 auto;
+  background:var(--panel);
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 0 60px rgba(0,0,0,.6);
+  z-index:1;
+}
+@media (min-width:481px){
+  .stage{ border-left:1px solid var(--line); border-right:1px solid var(--line); }
+}
+
+/* progress segments */
+.segments{
+  display:flex;
+  gap:4px;
+  padding:10px 12px 8px;
+  flex-shrink:0;
+}
+.seg{
+  flex:1;
+  height:3px;
+  border-radius:2px;
+  background:rgba(255,255,255,.12);
+  overflow:hidden;
+}
+.seg i{
+  display:block;
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,var(--naya),var(--arga));
+  transition:width .15s linear;
+}
+.seg.done i{width:100%;transition:none;}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:2px 16px 12px;
+  flex-shrink:0;
+}
+.brand{
+  font-weight:800;
+  font-size:.78rem;
+  letter-spacing:3px;
+  color:var(--text-dim);
+}
+.mute-btn{
+  background:none;
+  border:none;
+  color:var(--text-dim);
+  font-size:1.05rem;
+  cursor:pointer;
+  padding:4px 6px;
+  line-height:1;
+}
+
+/* main content */
+.screen{
+  position:relative;
+  flex:1;
+  overflow:hidden;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  opacity:0;
+  transform:translateY(14px);
+  pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.slide.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
+
+.scene-head{
+  padding:2px 20px 14px;
+  flex-shrink:0;
+}
+.scene-num{
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:2px;
+  color:var(--arga);
+  text-transform:uppercase;
+}
+.scene-title{
+  font-family:'Merriweather',serif;
+  font-weight:700;
+  font-style:italic;
+  font-size:1.15rem;
+  margin-top:4px;
+  color:var(--text);
+}
+.time-badge{
+  display:inline-block;
+  margin-top:8px;
+  font-size:.72rem;
+  font-weight:600;
+  color:var(--text-dim);
+  border:1px solid var(--line);
+  padding:2px 10px;
+  border-radius:20px;
+}
+
+.feed{
+  flex:1;
+  overflow-y:auto;
+  padding:6px 18px 18px;
+  scroll-behavior:smooth;
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+.feed::-webkit-scrollbar{display:none;}
+
+.blk{
+  margin-bottom:14px;
+  opacity:0;
+  animation:rise .35s ease forwards;
+}
+@keyframes rise{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+.narr{
+  font-family:'Merriweather',serif;
+  font-size:.98rem;
+  line-height:1.75;
+  color:#c7d0e0;
+}
+.narr .typed-cursor{
+  display:inline-block;
+  width:2px;height:1em;
+  background:var(--text-dim);
+  margin-left:2px;
+  vertical-align:-2px;
+  animation:blink 1s step-start infinite;
+}
+@keyframes blink{50%{opacity:0;}}
+
+.action{
+  text-align:center;
+  font-family:'Merriweather',serif;
+  font-style:italic;
+  font-size:.85rem;
+  color:var(--text-dim);
+  margin:10px 0;
+}
+
+.row{
+  display:flex;
+  margin-bottom:4px;
+}
+.row.out{justify-content:flex-end;}
+.row.in{justify-content:flex-start;}
+
+.bubble-wrap{max-width:78%;}
+.who{
+  font-size:.68rem;
+  font-weight:700;
+  margin-bottom:3px;
+  padding:0 4px;
+}
+.bubble{
+  padding:9px 13px;
+  border-radius:16px;
+  font-size:.92rem;
+  line-height:1.45;
+  box-shadow:0 2px 8px rgba(0,0,0,.25);
+}
+.row.in .bubble{
+  background:var(--bubble-in);
+  color:var(--text);
+  border-bottom-left-radius:4px;
+}
+.row.out .bubble{
+  background:linear-gradient(135deg,var(--bubble-out),var(--bubble-out2));
+  color:#fff;
+  border-bottom-right-radius:4px;
+}
+.who.c-arga{color:var(--arga);}
+.who.c-salsa{color:var(--salsa);}
+.who.c-rani{color:var(--rani);}
+.who.c-orang{color:var(--orang);}
+.who.c-naya{color:var(--naya);text-align:right;}
+
+/* typing indicator */
+.typing-row{display:flex;margin-bottom:10px;}
+.typing-row.out{justify-content:flex-end;}
+.typing-bubble{
+  padding:11px 14px;
+  border-radius:16px;
+  background:var(--bubble-in);
+}
+.typing-row.out .typing-bubble{
+  background:linear-gradient(135deg,var(--bubble-out),var(--bubble-out2));
+  border-bottom-right-radius:4px;
+}
+.typing-row.in .typing-bubble{border-bottom-left-radius:4px;}
+.dot{
+  display:inline-block;
+  width:6px;height:6px;
+  border-radius:50%;
+  background:rgba(255,255,255,.75);
+  margin:0 2px;
+  animation:bounce 1.1s infinite ease-in-out;
+}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-4px);opacity:1;}}
+
+.quote{
+  border-left:3px solid var(--naya);
+  padding:12px 16px;
+  margin:16px 0;
+  font-family:'Merriweather',serif;
+  font-style:italic;
+  font-size:.95rem;
+  color:#d8dfec;
+  background:rgba(255,255,255,.03);
+  border-radius:0 10px 10px 0;
+}
+.quote.center{
+  border-left:none;
+  border-top:3px solid var(--arga);
+  text-align:center;
+  font-style:normal;
+  font-weight:600;
+  border-radius:10px;
+}
+
+.ending{
+  text-align:center;
+  padding:30px 20px;
+}
+.ending-title{
+  font-weight:800;
+  font-size:1.6rem;
+  letter-spacing:5px;
+  background:linear-gradient(135deg,var(--naya),var(--arga));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+.ending-sub{
+  margin-top:10px;
+  font-family:'Merriweather',serif;
+  font-style:italic;
+  color:var(--text-dim);
+  font-size:.85rem;
+}
+.replay-btn{
+  margin-top:24px;
+  background:none;
+  border:1px solid var(--line);
+  color:var(--text);
+  padding:9px 22px;
+  border-radius:20px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.85rem;
+  cursor:pointer;
+}
+.replay-btn:hover{border-color:var(--arga);color:var(--arga);}
+
+/* tap zones */
+.tapzones{
+  position:absolute;
+  inset:0;
+  display:flex;
+  z-index:5;
+}
+.tapzones div{flex:1;}
+
+/* bottom hint / nav */
+.footer{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:10px 0 16px;
+  color:var(--text-dim);
+  font-size:.72rem;
+  letter-spacing:.5px;
+}
+.footer .chevron{opacity:.6;font-size:.9rem;}
+</style>
+</head>
+<audio autoplay>
+  <source src="assett/Dua Minggu.mp3" type="audio/mp3">
+</audio>
+<body>
+
+<div class="stage">
+  <div class="segments" id="segments"></div>
+  <div class="topbar">
+    <div class="brand">DUA MINGGU</div>
+    <button class="mute-btn" id="skipBtn" title="Lewati animasi">⏭</button>
+  </div>
+
+  <div class="screen" id="screen">
+    <div class="tapzones">
+      <div id="zoneBack"></div>
+      <div id="zoneFwd"></div>
+    </div>
+  </div>
+
+  <div class="footer" id="footer">
+    <span class="chevron">‹</span> ketuk kiri/kanan untuk lanjut <span class="chevron">›</span>
+  </div>
+</div>
+
+<script>
+/* ============ DATA CERITA ============ */
+const scenes = [
+{
+  head:"ADEGAN 1", title:"Naya yang Memulai", time:"22.17 WIB",
+  blocks:[
+    {t:'narr', text:"Naya menatap nama Arga di layar WhatsApp cukup lama. Jempolnya berkali-kali ingin mengetik sesuatu, tetapi selalu dihapus kembali. Akhirnya dia memberanikan diri."},
+    {t:'chat', who:'naya', side:'out', text:'"Ga, belum tidur?"'},
+    {t:'narr', text:"Beberapa detik kemudian."},
+    {t:'chat', who:'arga', side:'in', text:'"Belum. Kenapa?"'},
+    {t:'narr', text:"Naya tersenyum kecil."},
+    {t:'chat', who:'naya', side:'out', text:'"Nggak apa-apa."'},
+    {t:'narr', text:"Padahal sebenarnya Naya hanya ingin berbicara dengannya. Dia tidak tahu sejak kapan mulai menyukai Arga. Mungkin dari caranya mendengarkan. Mungkin dari caranya membuat obrolan sederhana terasa menyenangkan. Atau mungkin karena setiap kali nama Arga muncul di layar, Naya selalu tersenyum tanpa sadar."},
+    {t:'narr', text:"Di sisi lain, Arga juga mulai menyadari sesuatu. Dia selalu menunggu pesan Naya. Setiap kali ponselnya berbunyi dan nama Naya muncul, suasana hatinya seketika berubah menjadi lebih baik. Namun Arga belum tahu bahwa perasaan itu akan membawa mereka ke sesuatu yang jauh lebih rumit."}
+  ]
+},
+{
+  head:"ADEGAN 2", title:"Rahasia",
+  blocks:[
+    {t:'narr', text:"Malam itu Naya sedang video call bersama Salsa dan Rani."},
+    {t:'chat', who:'salsa', side:'in', text:'"Jujur. Lu suka Arga, kan?"'},
+    {t:'action', text:'Naya diam.'},
+    {t:'chat', who:'rani', side:'in', text:'"Nah, diam berarti iya."'},
+    {t:'action', text:'Naya tertawa kecil.'},
+    {t:'chat', who:'naya', side:'out', text:'"Iya."'},
+    {t:'chat', who:'salsa', side:'in', text:'"Dia tahu?"'},
+    {t:'action', text:'Naya menggeleng.'},
+    {t:'chat', who:'naya', side:'out', text:'"Belum."'},
+    {t:'chat', who:'rani', side:'in', text:'"Kenapa?"'},
+    {t:'narr', text:"Naya melihat chat Arga."},
+    {t:'chat', who:'naya', side:'out', text:'"Aku takut."'},
+    {t:'chat', who:'salsa', side:'in', text:'"Takut ditolak?"'},
+    {t:'action', text:'Naya menggeleng.'},
+    {t:'chat', who:'naya', side:'out', text:'"Takut semuanya berubah."'},
+    {t:'narr', text:"Sementara itu, Arga sama sekali tidak tahu bahwa dirinya sedang menjadi topik pembicaraan. Baginya, hubungan mereka terasa sederhana. Dia hanya tahu bahwa dia nyaman berbicara dengan Naya. Dan semakin hari, dia semakin menunggu percakapan mereka."}
+  ]
+},
+{
+  head:"ADEGAN 3", title:"Dua Minggu",
+  blocks:[
+    {t:'narr', text:"Hari demi hari berlalu. Naya dan Arga semakin dekat. Mereka membicarakan makanan, keluarga, masa lalu, hingga hal-hal kecil yang biasanya tidak mereka ceritakan kepada orang lain."},
+    {t:'narr', text:"Suatu malam, Arga mengetik:"},
+    {t:'chat', who:'arga', side:'in', text:'"Aku nyaman ngobrol sama kamu."'},
+    {t:'narr', text:"Naya tersenyum."},
+    {t:'chat', who:'naya', side:'out', text:'"Aku juga."'},
+    {t:'narr', text:"Naya sebenarnya ingin mengatakan sesuatu yang lebih. Namun dia mengurungkan niatnya."},
+    {t:'narr', text:"Hari ke-14."},
+    {t:'chat', who:'naya', side:'out', text:'"Jangan berubah ya."'},
+    {t:'chat', who:'arga', side:'in', text:'"Kenapa?"'},
+    {t:'chat', who:'naya', side:'out', text:'"Takut kehilangan orang yang bikin aku nyaman."'},
+    {t:'narr', text:"Arga membaca pesan itu. Untuk beberapa detik, dia tersenyum sendiri. Kemudian dia membalas:"},
+    {t:'chat', who:'arga', side:'in', text:'"Aku nggak akan ke mana-mana."'},
+    {t:'narr', text:"Bagi Arga, kalimat itu sederhana. Dia benar-benar bermaksud untuk tetap ada. Dia tidak tahu bahwa bagi Naya, kalimat itu justru membuat semuanya terasa semakin serius."}
+  ]
+},
+{
+  head:"ADEGAN 4", title:"Naya Memblokir Arga",
+  blocks:[
+    {t:'narr', text:"Pagi itu Naya membuka profil Arga. Dia menatap layar cukup lama. Kemudian menekan tombol Blokir. Selesai."},
+    {t:'narr', text:"Namun bagi Arga, semuanya tidak sesederhana itu. Beberapa jam kemudian, Arga membuka WhatsApp. Dia mencoba mengirim pesan. Tidak terkirim. Dia mencoba lagi. Tetap sama."},
+    {t:'narr', text:"Arga melihat profil Naya. Kemudian dia sadar. Dia telah diblokir."},
+    {t:'narr', text:"Arga terdiam. Dia tidak mengerti. Semalam mereka masih berbicara seperti biasa. Tidak ada pertengkaran. Tidak ada masalah. Tidak ada tanda bahwa semuanya akan berhenti begitu saja."},
+    {t:'chat', who:'arga', side:'in', text:'"Kenapa?"', unsent:true},
+    {t:'narr', text:"Itulah satu-satunya pertanyaan yang muncul di kepalanya. Bukan karena dia marah. Bukan karena dia ingin memaksa Naya kembali. Dia hanya ingin tahu apa yang salah."},
+    {t:'narr', text:"Di sisi lain, Naya juga merasakan hal yang sama beratnya. Dia masih menyukai Arga. Namun dia takut perasaannya semakin dalam."}
+  ]
+},
+{
+  head:"ADEGAN 5", title:"Akun Baru",
+  blocks:[
+    {t:'narr', text:"Beberapa hari kemudian, Arga membuat akun lain. Dia tidak berniat mengganggu. Dia hanya ingin mendapatkan satu jawaban. Sebuah penjelasan."},
+    {t:'chat', who:'arga', side:'in', text:'"Hai, Nay."'},
+    {t:'chat', who:'naya', side:'out', text:'"Ini siapa?"'},
+    {t:'chat', who:'arga', side:'in', text:'"Arga."'},
+    {t:'chat', who:'naya', side:'out', text:'"Kenapa bikin akun baru?"'},
+    {t:'chat', who:'arga', side:'in', text:'"Aku cuma mau ngomong."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku udah blokir kamu."'},
+    {t:'chat', who:'arga', side:'in', text:'"Aku tahu."'},
+    {t:'chat', who:'arga', side:'in', text:'"Aku cuma mau penjelasan."'},
+    {t:'chat', who:'naya', side:'out', text:'"Ga, kamu ganggu."'},
+    {t:'chat', who:'arga', side:'in', text:'"Aku cuma mau tahu salahku apa."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku nggak mau ngobrol."'},
+    {t:'narr', text:"Naya memblokirnya. Arga kembali menatap layar. Kali ini tidak ada lagi yang bisa dia lakukan."}
+  ]
+},
+{
+  head:"ADEGAN 6", title:"Akun Kedua",
+  blocks:[
+    {t:'narr', text:"Keesokan harinya, Arga masih memikirkan semuanya. Dia terus bertanya kepada dirinya sendiri. Apa dia melakukan sesuatu? Apa ada perkataannya yang salah? Apa selama ini Naya sebenarnya tidak nyaman?"},
+    {t:'chat', who:'arga', side:'in', text:'"Nay, maaf."'},
+    {t:'chat', who:'naya', side:'out', text:'"Kenapa kamu terus-terusan cari aku?"'},
+    {t:'chat', who:'arga', side:'in', text:'"Karena aku masih bingung."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku udah bilang jangan ganggu."'},
+    {t:'chat', who:'arga', side:'in', text:'"Tapi aku cuma pengin bicara sekali."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku nggak mau."'},
+    {t:'narr', text:"Arga akhirnya berhenti mengetik. Beberapa detik kemudian, Naya memblokirnya lagi."}
+  ]
+},
+{
+  head:"ADEGAN 7", title:"Naya Mulai Marah",
+  blocks:[
+    {t:'narr', text:"Beberapa waktu kemudian, Arga kembali muncul. Akun baru. Pesan baru."},
+    {t:'chat', who:'arga', side:'in', text:'"Nay."'},
+    {t:'chat', who:'arga', side:'in', text:'"Maaf."'},
+    {t:'chat', who:'arga', side:'in', text:'"Aku cuma pengin tahu apa salahku."'},
+    {t:'chat', who:'naya', side:'out', text:'"Kenapa kamu nggak ngerti?"'},
+    {t:'chat', who:'naya', side:'out', text:'"Berhenti. Aku udah bilang kamu ganggu."'},
+    {t:'chat', who:'naya', side:'out', text:'"Chat kamu sampah."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku risi lihat kamu terus-terusan chat aku."'},
+    {t:'chat', who:'naya', side:'out', text:'"Aku nggak mau lagi berhubungan sama kamu. Tolong berhenti cari aku."'},
+    {t:'narr', text:"Arga menatap layar cukup lama. Dadanya terasa berat. Naya memblokirnya. Dan kali ini Arga sadar. Mungkin dia memang harus berhenti."}
+  ]
+},
+{
+  head:"ADEGAN 8", title:"Setelah Memblokir",
+  blocks:[
+    {t:'narr', text:"Naya meletakkan ponselnya. Dia membuka galeri. Ada screenshot percakapan mereka."},
+    {t:'quote', text:'"Gue nyaman ngobrol sama lu."'},
+    {t:'narr', text:"Naya menatapnya lama. Dia masih menyukai Arga. Itulah masalahnya."},
+    {t:'narr', text:"Sementara itu, Arga duduk sendirian. Dia menutup chat tersebut. Untuk pertama kalinya, Arga memilih tidak mencari Naya lagi."}
+  ]
+},
+{
+  head:"ADEGAN 9", title:"Malam Itu",
+  blocks:[
+    {t:'narr', text:"Malamnya Naya menghubungi Salsa."},
+    {t:'chat', who:'naya', side:'out', text:'"Sal, aku tadi keterlaluan nggak? Aku bilang chat dia sampah."'},
+    {t:'chat', who:'salsa', side:'in', text:'"Kenapa lu bilang begitu?"'},
+    {t:'chat', who:'naya', side:'out', text:'"Karena aku pengin dia berhenti. Tapi sekarang aku malah merasa bersalah."'},
+    {t:'narr', text:"Sementara itu, Arga mulai menerima satu kenyataan: Naya sudah meminta jarak. Dan dia harus menghormatinya."}
+  ]
+},
+{
+  head:"ADEGAN 10", title:"Beberapa Bulan Kemudian",
+  blocks:[
+    {t:'narr', text:"Waktu berlalu. Suatu sore, sebuah pesan masuk dari teman Arga."},
+    {t:'chat', who:'orang', side:'in', label:'Orang Baru', text:'"Arga cuma pengin tahu kabar kamu. Kamu gak kangen seseorang?"'},
+    {t:'chat', who:'naya', side:'out', text:'"Kangen pacarku. Udah ya, Ga. Aku cape terus-terusan diganggu sama kamu. Be nice plis. Izin block."'},
+    {t:'narr', text:"Naya memblokirnya. Arga hanya terdiam saat mendapat kabar itu. Dia membuka chat lama mereka untuk terakhir kalinya, lalu menghapus kolom pencarian namanya dan benar-benar melepaskan."}
+  ]
+},
+{
+  head:"ADEGAN 11", title:"Dua Orang yang Sama-Sama Diam",
+  blocks:[
+    {t:'narr', text:"Malam itu, keduanya tidak tahu bahwa mereka sama-sama mengingat hal yang sama."},
+    {t:'narr', text:"Dua minggu. Hanya dua minggu. Namun dua minggu itu meninggalkan sesuatu yang jauh lebih lama."},
+    {t:'quote', center:true, text:"memaksa seseorang untuk tetap tinggal bukanlah cara untuk mempertahankannya."},
+    {t:'narr', text:"Layar ponsel Naya mati. Layar ponsel Arga juga mati. Hanya dua orang yang pernah begitu dekat... dan sekarang harus belajar menjadi asing."}
+  ]
+},
+{
+  head:"PENUTUP", title:"", ending:true,
+  blocks:[
+    {t:'quote', center:true, text:"Terkadang, melepaskan adalah bentuk cinta yang paling tulus, bukan karena kita yang sudah lelah, tapi karena kita yang ingin melihatnya bahagia."},
+    {t:'end'}
+  ]
+}
+];
+
+/* ============ STATE ============ */
+const screen = document.getElementById('screen');
+const segWrap = document.getElementById('segments');
+const footer = document.getElementById('footer');
+let curScene = 0;
+let curBlock = -1;
+let typingTimer = null;
+let advanceTimer = null;
+let slideEls = [];
+let phase = 'idle';      // 'typing-text' | 'typing-indicator' | 'idle' | 'done-scene'
+let forceComplete = null; // function to instantly finish current animation
+
+/* build progress segments */
+scenes.forEach(()=>{
+  const s=document.createElement('div');
+  s.className='seg';
+  s.innerHTML='<i></i>';
+  segWrap.appendChild(s);
+});
+const segNodes = [...segWrap.children];
+
+/* build slide shells */
+scenes.forEach((sc,i)=>{
+  const el=document.createElement('div');
+  el.className='slide';
+  el.innerHTML = `
+    <div class="scene-head">
+      <div class="scene-num">${sc.head}</div>
+      ${sc.title?`<div class="scene-title">${sc.title}</div>`:''}
+      ${sc.time?`<div class="time-badge">${sc.time}</div>`:''}
+    </div>
+    <div class="feed" id="feed-${i}"></div>
+  `;
+  screen.appendChild(el);
+  slideEls.push(el);
+});
+
+function setSegState(){
+  segNodes.forEach((n,i)=>{
+    const bar = n.querySelector('i');
+    if(i<curScene){ n.classList.add('done'); bar.style.width='100%'; }
+    else if(i===curScene){ n.classList.remove('done'); }
+    else { n.classList.remove('done'); bar.style.width='0%'; }
+  });
+}
+
+function showScene(idx, fromBlock){
+  curScene = Math.max(0, Math.min(scenes.length-1, idx));
+  slideEls.forEach((el,i)=>el.classList.toggle('active', i===curScene));
+  const feed = document.getElementById('feed-'+curScene);
+  feed.innerHTML='';
+  curBlock = -1;
+  setSegState();
+  clearTimers();
+  nextBlock();
+}
+
+function clearTimers(){
+  clearTimeout(typingTimer);
+  clearTimeout(advanceTimer);
+}
+
+function updateSceneProgress(){
+  const total = scenes[curScene].blocks.length;
+  const pct = Math.min(100, Math.round(((curBlock+1)/total)*100));
+  segNodes[curScene].querySelector('i').style.width = pct+'%';
+}
+
+function nextBlock(){
+  clearTimers();
+  forceComplete = null;
+  const sc = scenes[curScene];
+  curBlock++;
+  if(curBlock >= sc.blocks.length){
+    updateSceneProgress();
+    phase = 'done-scene';
+    return;
+  }
+  updateSceneProgress();
+  const b = sc.blocks[curBlock];
+  const feed = document.getElementById('feed-'+curScene);
+
+  if(b.t === 'narr'){
+    phase = 'typing-text';
+    renderNarration(feed, b.text, ()=>{ phase='idle'; advanceTimer = setTimeout(nextBlock, 650); });
+  } else if(b.t === 'action'){
+    phase = 'idle';
+    const div = document.createElement('div');
+    div.className='blk action';
+    div.textContent = b.text;
+    feed.appendChild(div);
+    scrollFeed(feed);
+    advanceTimer = setTimeout(nextBlock, 700);
+  } else if(b.t === 'chat'){
+    phase = 'typing-indicator';
+    showTypingThenBubble(feed, b, ()=>{ phase='idle'; advanceTimer = setTimeout(nextBlock, 450); });
+  } else if(b.t === 'quote'){
+    phase = 'idle';
+    const div = document.createElement('div');
+    div.className = 'blk quote' + (b.center?' center':'');
+    div.textContent = b.text;
+    feed.appendChild(div);
+    scrollFeed(feed);
+    advanceTimer = setTimeout(nextBlock, 1400);
+  } else if(b.t === 'end'){
+    phase = 'done-scene';
+    const div = document.createElement('div');
+    div.className='blk ending';
+    div.innerHTML = `<div class="ending-title">TAMAT</div>
+      <div class="ending-sub">Sebuah cerita tentang bertemu, nyaman, dan melepaskan.</div>
+      <button class="replay-btn" id="replayBtn">Ulangi dari awal</button>`;
+    feed.appendChild(div);
+    scrollFeed(feed);
+    setTimeout(()=>{
+      const rb = document.getElementById('replayBtn');
+      if(rb) rb.addEventListener('click', (e)=>{ e.stopPropagation(); showScene(0); });
+    },0);
+  }
+}
+
+function renderNarration(feed, text, done){
+  const div = document.createElement('div');
+  div.className='blk narr';
+  const span = document.createElement('span');
+  const cursor = document.createElement('span');
+  cursor.className='typed-cursor';
+  div.appendChild(span);
+  div.appendChild(cursor);
+  feed.appendChild(div);
+  scrollFeed(feed);
+
+  let i = 0;
+  const speed = 14; // ms per char
+  let finished = false;
+  function finishNow(){
+    if(finished) return;
+    finished = true;
+    span.textContent = text;
+    cursor.remove();
+    forceComplete = null;
+    done();
+  }
+  forceComplete = finishNow;
+  function tick(){
+    if(finished) return;
+    if(i <= text.length){
+      span.textContent = text.slice(0,i);
+      i += 2;
+      scrollFeed(feed);
+      typingTimer = setTimeout(tick, speed);
+    } else {
+      finishNow();
+    }
+  }
+  tick();
+}
+
+function showTypingThenBubble(feed, b, done){
+  const trow = document.createElement('div');
+  trow.className = 'typing-row blk ' + b.side;
+  trow.innerHTML = `<div class="typing-bubble"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+  feed.appendChild(trow);
+  scrollFeed(feed);
+
+  let finished = false;
+  function finishNow(){
+    if(finished) return;
+    finished = true;
+    trow.remove();
+    const row = document.createElement('div');
+    row.className = 'row blk ' + b.side;
+    const wrap = document.createElement('div');
+    wrap.className = 'bubble-wrap';
+    let whoHtml = '';
+    if(b.who !== 'naya' || b.label){
+      whoHtml = `<div class="who c-${b.who}">${b.label || capitalize(b.who)}</div>`;
+    }
+    wrap.innerHTML = `${whoHtml}<div class="bubble">${b.text}${b.unsent?'<div style="font-size:.65rem;opacity:.6;margin-top:4px;">tidak terkirim</div>':''}</div>`;
+    row.appendChild(wrap);
+    feed.appendChild(row);
+    scrollFeed(feed);
+    forceComplete = null;
+    done();
+  }
+  forceComplete = finishNow;
+  typingTimer = setTimeout(finishNow, 750);
+}
+
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+function scrollFeed(feed){
+  requestAnimationFrame(()=>{ feed.scrollTop = feed.scrollHeight; });
+}
+
+/* ============ NAV / SKIP ============ */
+function handleForward(){
+  if(phase === 'typing-text' || phase === 'typing-indicator'){
+    if(forceComplete) forceComplete();
+    return;
+  }
+  if(phase === 'idle'){
+    clearTimers();
+    nextBlock();
+    return;
+  }
+  if(phase === 'done-scene'){
+    if(curScene < scenes.length-1){
+      showScene(curScene+1);
+    }
+  }
+}
+
+function handleBack(){
+  if(curScene > 0){
+    showScene(curScene-1);
+  } else {
+    showScene(0);
+  }
+}
+
+document.getElementById('zoneFwd').addEventListener('click', handleForward);
+document.getElementById('zoneBack').addEventListener('click', handleBack);
+document.getElementById('skipBtn').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  handleForward();
+});
+
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'ArrowRight' || e.key === ' '){ handleForward(); }
+  if(e.key === 'ArrowLeft'){ handleBack(); }
+});
+
+/* start */
+showScene(0);
+</script>
+</body>
+</html>
